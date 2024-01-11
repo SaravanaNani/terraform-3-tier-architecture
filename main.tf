@@ -169,12 +169,12 @@ resource "aws_route_table" "application-rt" {
 
 
 # Create App Subnet association with App route table
-resource "aws_route_table_association" "a" {
+resource "aws_route_table_association" "c" {
   subnet_id      = aws_subnet.application-subnet-1.id
   route_table_id = aws_route_table.application-rt.id
 }
 
-resource "aws_route_table_association" "b" {
+resource "aws_route_table_association" "d" {
   subnet_id      = aws_subnet.application-subnet-2.id
   route_table_id = aws_route_table.application-rt.id
 }
