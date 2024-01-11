@@ -133,6 +133,53 @@ resource "aws_route_table_association" "b" {
   route_table_id = aws_route_table.web-rt.id
 }
 
+resource "aws_nat_gateway" "nat" {
+  connectivity_type = "public"
+  allocation_id = aws_eip.nat.id
+  subnet_id     = aws_subnet.web-subnet-1a.id
+
+  tags = {
+    Name = "SWIGGY-nat"
+  }
+
+  # To ensure proper ordering, it is recommended to add an explicit dependency
+  # on the Internet Gateway for the VPC.
+  depends_on = [aws_internet_gateway.igw]
+}
+
+
+
+
+
+
+# Create App layer route table
+resource "aws_route_table" "application-rt" {
+  vpc_id = aws_vpc.my-vpc.id
+
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_nat_gateway.nat.id
+  }
+
+  tags = {
+    Name = "NatRT"
+  }
+}
+
+
+# Create App Subnet association with App route table
+resource "aws_route_table_association" "a" {
+  subnet_id      = aws_subnet.application-subnet-1.id
+  route_table_id = aws_route_table.application-rt.id
+}
+
+resource "aws_route_table_association" "b" {
+  subnet_id      = aws_subnet.application-subnet-2.id
+  route_table_id = aws_route_table.application-rt.id
+}
+
+
 #Create EC2 Instance
 resource "aws_instance" "webserver1" {
   ami                    = "ami-0d5eff06f840b45e9"
